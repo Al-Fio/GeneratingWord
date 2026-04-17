@@ -1,31 +1,271 @@
 <!DOCTYPE html>
-<html>
+<html lang="it">
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gioco Parole</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Parole NFC Pro</title>
     <style>
-        body { height: 100vh; margin: 0; display: flex; align-items: center; justify-content: center; font-family: sans-serif; background: #222; color: white; text-align: center; cursor: pointer; user-select: none; }
-        #word { font-size: 3rem; font-weight: bold; padding: 20px; }
+        /* Blocco totale del movimento e stile scuro */
+        html, body {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            touch-action: none;
+            background-color: #000000;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        #word { 
+            /* Font fluido: si adatta alla larghezza dello schermo */
+            font-size: clamp(1.5rem, 10vw, 4rem); 
+            font-weight: 900; 
+            padding: 10vw; 
+            text-transform: uppercase;
+            text-align: center;
+            line-height: 1.2;
+            width: 100%;
+            box-sizing: border-box;
+        }
     </style>
 </head>
 <body onclick="nextWord()">
-    <div id="word">Tocca per iniziare</div>
+    <div id="word">TOCCA PER INIZIARE</div>
 
     <script>
-        const words = ["Mela", "Libro", "Sole", "Gatto", "Mare", "Luna", "Stella"];
-        let shuffled = words.sort(() => Math.random() - 0.5);
+        // Puoi aggiungere quante parole vuoi qui sotto
+        const words = [
+            // --- OGGETTI E NATURA (Facili) ---
+            "Mela", "Libro", "Sole", "Gatto", "Mare", "Luna", "Stella", "Vento", "Montagna", "Orologio", 
+            "Chitarra", "Zaino", "Caffè", "Albero", "Sedia", "Telefono", "Bicicletta", "Scarpa", "Ombrello", "Chiave",
+            "Bottiglia", "Computer", "Finestra", "Divano", "Lampadina", "Fiore", "Cane", "Pizza", "Treno", "Aereo",
+            
+            // --- AZIONI E VERBI (Mimo) ---
+            "Correre", "Dormire", "Cucinare", "Nuotare", "Sciare", "Danzare", "Sognare", "Piangere", "Ridere", "Scrivere",
+            "Guidare", "Pescare", "Sbadigliare", "Urlare", "Saltare", "Starnutire", "Truccarsi", "Radersi", "Cucire", "Pregare",
+            
+            // --- CONCETTI E DIFFICILI (Disegno/Spiegazione) ---
+            "Codice", "Avventura", "Precipitevolissimevolmente", "Pianeta", "Entropia", "Democrazia", "Nostalgia", "Paradosso", 
+            "Labirinto", "Orizzonte", "Eclissi", "Sinfonia", "Metamorfosi", "Miraggio", "Ipotesi", "Gravità", "Equilibrio", 
+            "Destino", "Libertà", "Egocentrismo", "Procrastinare", "Algoritmo", "Filosofia", "Anacronismo", "Entusiasmo",
+            
+            // --- PERSONAGGI E MESTIERI ---
+            "Astronauta", "Pirata", "Dottore", "Chef", "Vampiro", "Ninja", "Poliziotto", "Pittore", "Sub", "Pilota",
+            "Detective", "Scienziato", "Supereroe", "Postino", "Barbiere", "Mimo", "Gladiatore", "Cowboy", "Re", "Strega",
+            
+            // --- CATEGORIA 18+ (Per adulti) ---
+            "Sexy", "Seno", "Preservativo", "Manette", "Frustino", "Spogliarello", "Orgasmo", "Pornografia", "Erotismo", "Baccanale",
+            "Sesso", "Kamasutra", "Lingerie", "Vibratore", "Perizoma", "Seduzione", "Banchetto", "Postumi", "Sbornia", "Addio al nubilato",
+            "Tradimento", "Feticismo", "Latex", "Scambismo", "Lubrificante", "Tentazione", "Peccato", "Passione", "Infedeltà", "Brivido",
+            
+            // --- LUOGHI ---
+            "Colosseo", "Deserto", "Giungla", "Biblioteca", "Ospedale", "Discoteca", "Vulcano", "Cimitero", "Stazione", "Castello",
+            "Supermercato", "Museo", "Spiaggia", "Grattacielo", "Igloo", "Fattoria", "Teatro", "Laboratorio", "Prigione", "Casinò",
+            
+            // --- CIBI E BEVANDE ---
+            "Sushi", "Spaghetti", "Hamburger", "Vino", "Birra", "Champagne", "Tiramisù", "Gelato", "Peperoncino", "Formaggio",
+            "Cocktail", "Anguria", "Aragosta", "Carciofo", "Ananas", "Lasagna", "Bacon", "Whisky", "Miele", "Cipolla"
+
+            // --- OGGETTI COMPLESSI (Disegno) ---
+            "Sottomarino", "Telescopio", "Cattedrale", "Ponte levatoio", "Macchina da scrivere", "Grammofono", "Dinosauro", "Dirigibile", "Mulino a vento", "Bussola",
+            "Clessidra", "Aratro", "Santuario", "Acceleratore di particelle", "Microscopio", "Incudine", "Ghigliottina", "Palanchino", "Sarcofago", "Drone",
+        
+            // --- SPORT E HOBBY (Mimo) ---
+            "Bowling", "Tiro con l'arco", "Sollevamento pesi", "Scherma", "Yoga", "Surf", "Ping pong", "Equitazione", "Paracadutismo", "Karate",
+            "Giardinaggio", "Scacchi", "Poker", "Biliardo", "Arrampicata", "Pattinaggio sul ghiaccio", "Dodgeball", "Golf", "Rugby", "Breakdance",
+        
+            // --- CONCETTI ASTRATTI (Spiegazione) ---
+            "Ipocrisia", "Resilienza", "Karma", "Dejavu", "Globalizzazione", "Malinconia", "Egoismo", "Altruismo", "Intuizione", "Destino",
+            "Burocrazia", "Inflazione", "Ironia", "Sarcasmo", "Utopia", "Dilemma", "Pazienza", "Orgoglio", "Gelosia", "Libertà di stampa",
+        
+            // --- CATEGORIA 18+ / ADULTI ---
+            "Kamasutra", "Sogno erotico", "Preliminari", "Strip-poker", "Frusta", "Sottomissione", "Dominazione", "Cetriolo", "Banana", "Posizione del missionario",
+            "Voglia", "Passione travolgente", "Amoreggiamento", "Colpo di fulmine", "Pelle d'oca", "Doccia bollente", "Massaggio sensuale", "Intimo", "Reggicalze", "Corsetto",
+            "Camera da letto", "Albergo a ore", "Scappatella", "Appuntamento al buio", "Sex symbol", "Afrodisiaco", "Ostriche", "Panna montata", "Peccato originale", "Tentazione",
+        
+            // --- NATURA E ANIMALI ---
+            "Ornitorinco", "Bradipo", "Camaleonte", "Cobra", "Pavone", "Ippopotamo", "Scorpione", "Medusa", "Aquila", "Pipistrello",
+            "Cascata", "Ghiacciaio", "Barriera corallina", "Stalattite", "Tornado", "Eclissi solare", "Aurora boreale", "Palude", "Canyon", "Arcipelago",
+        
+            // --- CIBO E CUCINA ---
+            "Tartufo", "Zafferano", "Sushi", "Paella", "Fonduta", "Guacamole", "Kebab", "Macaron", "Cheesecake", "Zucchero filato",
+            "Cavatappi", "Spremiagrumi", "Friggitrice ad aria", "Mortaio", "Wok", "Mestolo", "Colino", "Grattugia", "Tostapane", "Bollitore",
+        
+            // --- PERSONAGGI FAMOSI / FANTASY ---
+            "Sherlock Holmes", "Dracula", "Frankenstein", "Harry Potter", "Wonder Woman", "Robin Hood", "Zorro", "Marilyn Monroe", "Elvis Presley", "Cleopatra",
+            "Centauro", "Sirena", "Ciclope", "Fenice", "Unicorno", "Minotauro", "Gnomo", "Elfo", "Orco", "Zombie"
+
+            // --- OGGETTI QUOTIDIANI E CURIOSI ---
+            "Scolapasta", "Ventilatore", "Pinzatrice", "Radiografia", "Amaca", "Estintore", "Piumone", "Sveglia", "Telecomando", "Grattacielo",
+            "Palla di neve", "Cannuccia", "Lente d'ingrandimento", "Bussola", "Semaforo", "Binocolo", "Tappo di sughero", "Zampirone", "Borraccia", "Detersivo",
+            "Scontrino", "Francobollo", "Siringa", "Flebo", "Manichino", "Termosifone", "Culla", "Lievito", "Pellicola", "Fiammifero",
+        
+            // --- AZIONI DIFFICILI (Mimo) ---
+            "Inciampare", "Origliare", "Sognare ad occhi aperti", "Fare il bucato", "Agganciare un bottone", "Cavalcare un'onda", "Farsi un selfie", "Montare una tenda", "Perdere le chiavi", "Spingere un carrello",
+            "Giocare a bowling", "Scartare un regalo", "Cambiare una lampadina", "Rimanere bloccati in ascensore", "Vincere la lotteria", "Fare un tatuaggio", "Imitare un pollo", "Soffiare sulle candeline", "Fare la fila", "Prendere la scossa",
+        
+            // --- PROFESSIONI E RUOLI ---
+            "Astronauta", "Notaio", "Bibliotecario", "Becchino", "Saldatore", "Influencer", "Guardia del corpo", "Spia", "Archeologo", "Sommelier",
+            "Contadino", "Giudice", "Chirurgo", "Carpentiere", "Hostess", "Vigile del fuoco", "Elettricista", "Camionista", "Stuntman", "Orafo",
+        
+            // --- 18+ / ADULTI (Audaci e Comportamenti) ---
+            "Palo della lap dance", "Spogliarellista", "Frustino", "Manette di peluche", "Orgia", "Voyeurismo", "Sexting", "Scambismo", "Colpo di fulmine", "Rimorchiatore",
+            "Giarrettiera", "Vibratore", "BDSM", "Pillola del giorno dopo", "Sveltina", "Cama Sutra", "Film a luci rosse", "Sesso orale", "Eiaculazione", "Punto G",
+            "Godemichet", "Sodoma", "Prostituta", "Gigolò", "Escort", "Bordello", "Sadomaso", "Feticismo dei piedi", "Triangolo", "Ninfomania",
+            "Seno rifatto", "Perizoma di pizzo", "Latex", "Travestitismo", "Boudoir", "Alcova", "Libidine", "Lussuria", "Peccatore", "Voglia matta",
+        
+            // --- ANIMALI E CREATURE ---
+            "Canguro", "Bradipo", "Ippopotamo", "Calamaro gigante", "Zanzara", "Tarantola", "Picchio", "Criceto", "Iena", "Gorilla",
+            "Yeti", "Mostro di Loch Ness", "Cherubino", "Basilisco", "Diavolo", "Angelo", "Licantropo", "Pegaso", "Idra", "Kraken",
+        
+            // --- CIBI ED ESPERIENZE GUSTATIVE ---
+            "Zucchero filato", "Tartufo bianco", "Couscous", "Sake", "Mojito", "Gorgonzola", "Peperoncino habanero", "Ostriche", "Caviale", "Pollo fritto",
+            "Gomma da masticare", "Bastoncino di zucchero", "Kebab", "Fonduta", "Salsiccia", "Wurstel", "Maionese", "Senape", "Tequila", "Assenzio",
+        
+            // --- LUOGHI E AMBIENTI ---
+            "Luna park", "Pronto soccorso", "Convento", "Stalla", "Cantiere", "Aeroporto", "Sottomarino", "Igloo", "Sauna", "Casinò",
+            "Tribunale", "Laboratorio segreto", "Base spaziale", "Palude", "Faro", "Miniera", "Cimitero", "Bunker", "Orfanotrofio", "Autolavaggio",
+
+            // --- OGGETTI E COSE ASSURDE (Disegno/Mimo) ---
+            "Schiaccianoci", "Candelabro", "Mappamondo", "Tostapane", "Scolapasta", "Piumino per la polvere", "Rullo per pittura", "Cuffia da doccia", "Spazzolino elettrico", "Filo interdentale",
+            "Palla di fieno", "Segnale stradale", "Autovelox", "Parcometro", "Idrante", "Cassonetto", "Panca", "Amaca", "Altalena", "Scivolo",
+            "Trampoli", "Hula hoop", "Frisbee", "Aquilone", "Yo-yo", "Cubo di Rubik", "Dadi", "Fiches da poker", "Slot machine", "Sfigmomanometro",
+            "Stetoscopio", "Bisturi", "Sedia a rotelle", "Stampelle", "Gesso", "Flebo", "Termometro", "Mascherina", "Guanti di lattice", "Ambulanza",
+            "Deltaplano", "Mongolfiera", "Moto d'acqua", "Roulotte", "Trattore", "Mietitrebbia", "Betoniera", "Gru", "Carrello elevatore", "Seggiovia",
+        
+            // --- AZIONI E SITUAZIONI (Mimo) ---
+            "Fare la scarpetta", "Infilare un ago", "Fare il nodo alla cravatta", "Allacciarsi i pattini", "Spruzzare il profumo", "Mettersi le lenti a contatto", "Fare i gargarismi", "Soffiare il naso", "Tagliare le unghie", "Grattarsi la schiena",
+            "Andare in bicicletta senza mani", "Fare le bolle di sapone", "Pescare uno scarpone", "Vincere a braccio di ferro", "Perdere il treno", "Cercare un ago in un pagliaio", "Camminare sulle uova", "Rimanere a bocca aperta", "Dormire in piedi", "Fare la spesa",
+            "Cucinare una frittata", "Lavare i piatti", "Stendere i panni", "Passare l'aspirapolvere", "Spalare la neve", "Tirare con l'arco", "Giocare a golf", "Fare surf", "Ballare il tip-tap", "Suonare il triangolo",
+        
+            // --- CATEGORIA ADULTI / 18+ (Esplicite e Piccanti) ---
+            "Posizione del loto", "Sesso anale", "Eiaculazione precoce", "Punto G", "Clitoride", "Testicoli", "Peli pubici", "Depilazione totale", "Doccia dorata", "Feticismo",
+            "Latex", "Cuoio", "Maschera da gatto", "Corda per bondage", "Plug anale", "Dildo gigante", "Bambola gonfiabile", "Film porno", "Sito per adulti", "OnlyFans",
+            "Sugar Daddy", "Milf", "Toy Boy", "Cuckold", "Rimming", "69 (Sessantanove)", "Gangbang", "Bukkake", "Squirt", "Orgasmo simulato",
+            "Urla di piacere", "Graffi sulla schiena", "Mordere il labbro", "Sotto le lenzuola", "Fare cilecca", "Protezione", "Malattia venerea", "Ginecologo", "Andrologo", "Voglia di sesso",
+            "Sogno proibito", "Fantasia erotica", "Sogno bagnato", "Asciugamano post-sesso", "Fare la doccia insieme", "Sesso in ascensore", "Sesso in spiaggia", "Colpo di frusta", "Bacio profondo", "Bacio con lingua",
+        
+            // --- PERSONAGGI, MESTIERI E POP CULTURE ---
+            "Sherlock Holmes", "Dracula", "Frankenstein", "Harry Potter", "Wonder Woman", "Batman", "Joker", "Voldemort", "Darth Vader", "Yoda",
+            "Marilyn Monroe", "Elvis Presley", "Michael Jackson", "Freddie Mercury", "Albert Einstein", "Leonardo da Vinci", "Giulio Cesare", "Napoleone", "Cleopatra", "Dante Alighieri",
+            "Influencer", "YouTuber", "TikToker", "Bodyguard", "Investigatore privato", "Agente segreto", "Sicario", "Cecchino", "Spazzino", "Idraulico",
+            "Elettricista", "Carpentiere", "Sarto", "Modella", "Stilista", "Fotografo", "Regista", "Attore", "Scrittore", "Giornalista",
+        
+            // --- ANIMALI (Dai più comuni ai più strani) ---
+            "Ornitorinco", "Armadillo", "Bradipo", "Camaleonte", "Cobra", "Pitone", "Tarantola", "Scorpione", "Medusa", "Polpo",
+            "Calamaro", "Balena", "Delfino", "Squalo", "Martello", "Pesce palla", "Cavalluccio marino", "Stella marina", "Granchio", "Aragosta",
+            "Zanzara", "Mosca", "Ape", "Vespa", "Calabrone", "Libellula", "Farfalla", "Bruco", "Lombrico", "Lumaca",
+        
+            // --- CONCETTI ASTRATTI E PAROLONI (Difficili) ---
+            "Inconscio", "Metempsicosi", "Omeopatia", "Procrastinazione", "Logistica", "Infrastruttura", "Egemonia", "Resilienza", "Sostenibilità", "Biodiversità",
+            "Intelligenza Artificiale", "Criptovaluta", "Metaverso", "Realtà aumentata", "Algoritmo", "Sincronicità", "Déjà vu", "Paradosso", "Eutanasia", "Meritocrazia",
+            "Burocrazia", "Amministrazione", "Cancellazione", "Disinformazione", "Fake News", "Propaganda", "Dittatura", "Anarchia", "Monarchia", "Oligarchia",
+        
+            // --- CIBO, BEVANDE E CUCINA ---
+            "Sushi", "Sashimi", "Ramen", "Paella", "Fonduta", "Raclette", "Goulash", "Couscous", "Tacos", "Burrito",
+            "Cheesecake", "Tiramisù", "Panna cotta", "Profiterole", "Meringa", "Zucchero filato", "Popcorn", "Patatine fritte", "Hamburger", "Hot dog",
+            "Coca Cola", "Pepsi", "Fanta", "Sprite", "Mojito", "Spritz", "Negroni", "Margarita", "Martini", "Bloody Mary",
+        
+            // --- LUOGHI E AMBIENTI ---
+            "Aeroporto", "Stazione", "Porto", "Autostrada", "Galleria", "Viadotto", "Grattacielo", "Condominio", "Baita", "Igloo",
+            "Deserto", "Giungla", "Tundra", "Savana", "Palude", "Fiordo", "Atollo", "Vulcano", "Ghiacciaio", "Grotta",
+            "Museo", "Teatro", "Cinema", "Stadio", "Palestra", "Piscina", "Discoteca", "Pub", "Ristorante", "Pizzeria",
+        
+            // --- SPORT E ATTREZZATURE ---
+            "Calcio", "Basket", "Tennis", "Pallavolo", "Rugby", "Baseball", "Cricket", "Golf", "Hockey", "Pattinaggio",
+            "Scherma", "Judo", "Karate", "Boxe", "Lotta libera", "Sollevamento pesi", "Ginnastica artistica", "Nuoto sincronizzato", "Pallanuoto", "Tuffi",
+            "Racchetta", "Mazza", "Guantone", "Casco", "Parastinchi", "Palla medica", "Bilanciere", "Cyclette", "Tapis roulant", "Sacco da boxe"
+
+            // --- OGGETTI (Disegno/Mimo) ---
+            "Scolapasta", "Imbuto", "Mortaio", "Pala", "Rastrello", "Carriola", "Mannaia", "Pinzetta", "Compasso", "Squadra",
+            "Goniometro", "Calamita", "Pila", "Dinamo", "Bullone", "Vite", "Tassello", "Smerigliatrice", "Saldatore", "Pialla",
+            "Incudine", "Mantice", "Trivella", "Argano", "Puleggia", "Zattera", "Gommone", "Canoa", "Piroscafo", "Sommergibile",
+            "Aliante", "Dirigibile", "Drone", "Razzo", "Satellite", "Radar", "Sonar", "Telescopio", "Periscopio", "Microscopio",
+            "Sveglia", "Metronomo", "Clessidra", "Cronometro", "Barometro", "Bussola", "Sestante", "Astrolabio", "Mappamondo", "Atlante",
+        
+            // --- AZIONI (Mimo) ---
+            "Sbadigliare", "Starnutire", "Zoppicare", "Strizzare", "Impastare", "Cucire", "Ricamare", "Sferruzzare", "Piallare", "Saldare",
+            "Scavare", "Setacciare", "Frullare", "Tostare", "Sbucciare", "Affettare", "Grattugiare", "Spennellare", "Lucidare", "Spazzolare",
+            "Pettinare", "Intrecciare", "Truccare", "Radersi", "Depilarsi", "Fiutare", "Assaggiare", "Ascoltare", "Sbirciare", "Origliare",
+            "Inciampare", "Scivolare", "Arrampicarsi", "Nuotare", "Galleggiare", "Tuffarsi", "Annegare", "Rianimare", "Bendare", "Ingessare",
+        
+            // --- 18+ / ADULTI (Parole Singole) ---
+            "Orgasmo", "Erezione", "Vibratore", "Dildo", "Lingerie", "Perizoma", "Giarrettiera", "Corsetto", "Frustino", "Manette",
+            "Lubrificante", "Preservativo", "Profilattico", "Pillola", "BDSM", "Fetish", "Erotismo", "Libidine", "Lussuria", "Peccato",
+            "Seduzione", "Tentazione", "Tradimento", "Adulterio", "Bordello", "Gigolò", "Escort", "Prostituta", "Spogliarello", "Lapdance",
+            "Striptease", "Porno", "Eiaculazione", "Sodomia", "Fellatio", "Cunnilingus", "Anale", "Vaginale", "Clitoride", "Pene",
+            "Vagina", "Seno", "Capezzolo", "Testicolo", "Pubis", "Uretra", "Afrodisiaco", "Ninfomane", "Priapismo", "PuntoG",
+        
+            // --- NATURA E SCIENZA ---
+            "Nebulosa", "Galassia", "Cometa", "Asteroide", "Meteorite", "Quasar", "Pulsar", "Atomo", "Molecola", "Neutrone",
+            "Protone", "Elettrone", "Quark", "Enzima", "Proteina", "Batterio", "Virus", "Microbo", "Parassita", "Fungo",
+            "Muffa", "Lichene", "Muschio", "Felce", "Edera", "Baobab", "Sequoia", "Eucalipto", "Mangrovia", "Ninfea",
+            "Cactus", "Agave", "Aloe", "Papavero", "Girasole", "Orchidea", "Ciclamino", "Gelsomino", "Lavanda", "Rosmarino",
+        
+            // --- ANIMALI (Singoli) ---
+            "Ornitorinco", "Pangolino", "Armadillo", "Bradipo", "Tapiro", "Ippopotamo", "Rinoceronte", "Ghepardo", "Iena", "Sciacallo",
+            "Coyote", "Tasso", "Lontra", "Faina", "Ermellino", "Puzzola", "Criceto", "Gerbillo", "Cavia", "Chinchillà",
+            "Iguana", "Geco", "Tritone", "Salamandra", "Axolotl", "Pitone", "Vipera", "Cobra", "Mamba", "Anaconda",
+            "Storione", "Salmone", "Tonno", "Merluzzo", "Sogliola", "Spirografo", "Medusa", "Anemone", "Corallo", "Spugna",
+        
+            // --- PROFESSIONI ---
+            "Notaio", "Geometra", "Architetto", "Ingegnere", "Chirurgo", "Pediatra", "Psichiatra", "Avvocato", "Magistrato", "Cancelliere",
+            "Diplomatico", "Ambasciatore", "Console", "Prefetto", "Questore", "Commissario", "Detective", "Agente", "Spia", "Sicario",
+            "Sommelier", "Barman", "Cameriere", "Maître", "Chef", "Pasticcere", "Panettiere", "Macellaio", "Pescivendolo", "Ortolano",
+            "Fioraio", "Orafo", "Orologiaio", "Calzolaio", "Sarto", "Tappezziere", "Falegname", "Fabbro", "Idraulico", "Elettricista",
+        
+            // --- CONCETTI E ASTRATTI ---
+            "Entropia", "Simbiosi", "Osmosti", "Sintesi", "Analisi", "Logica", "Etica", "Estetica", "Metafisica", "Ontologia",
+            "Dogma", "Eresia", "Scisma", "Liturgia", "Rituale", "Sacrificio", "Profezia", "Miracolo", "Destino", "Fato",
+            "Fortuna", "Sfortuna", "Azzardo", "Rischio", "Pericolo", "Crisi", "Panico", "Fobia", "Mania", "Ansia",
+            "Estasi", "Euforia", "Nostalgia", "Rancore", "Invidia", "Gelosia", "Avarizia", "Accidia", "Superbia", "Ira",
+        
+            // --- CIBI ---
+            "Zafferano", "Curcuma", "Zenzero", "Cannella", "Chiodo", "Noce", "Mandorla", "Nocciola", "Pistacchio", "Anacardio",
+            "Castagna", "Dattero", "Fico", "Melograno", "Cachi", "Avocado", "Papaya", "Mango", "Litchi", "Maracuja",
+            "Tartufo", "Porcino", "Champignon", "Finferlo", "Ovulo", "Gorgonzola", "Roquefort", "Camembert", "Brie", "Taleggio",
+        
+            // --- LUOGHI ---
+            "Cattedrale", "Basilica", "Santuario", "Monastero", "Convento", "Abbazia", "Sinagoga", "Moschea", "Pagoda", "Tempio",
+            "Piramide", "Obelisco", "Ziggurat", "Anfiteatro", "Mausoleo", "Catacomba", "Cripta", "Ossario", "Cimitero", "Necropoli",
+            "Fortezza", "Bastione", "Torretta", "Mastio", "Fossato", "Ponte", "Viadotto", "Sottopasso", "Galleria", "Rifugio",
+        
+            // --- STRUMENTI E MUSICA ---
+            "Violino", "Viola", "Violoncello", "Contrabbasso", "Arpa", "Lira", "Liuto", "Mandolino", "Banjo", "Ukulele",
+            "Flauto", "Clarinetto", "Oboe", "Fagotto", "Sassofono", "Tromba", "Trombone", "Tuba", "Corno", "Flicorno"
+        ];
+
+        let shuffled = [...words].sort(() => Math.random() - 0.5);
         let index = 0;
 
         function nextWord() {
+            const display = document.getElementById("word");
+            
             if (index < shuffled.length) {
-                document.getElementById("word").innerText = shuffled[index];
+                display.innerText = shuffled[index];
                 index++;
             } else {
-                document.getElementById("word").innerText = "Fine! (Tocca per riavviare)";
-                shuffled = words.sort(() => Math.random() - 0.5);
-                index = 0;
+                display.innerText = "FINE!";
+                // Reset automatico dopo un secondo
+                setTimeout(() => {
+                    shuffled = [...words].sort(() => Math.random() - 0.5);
+                    index = 0;
+                    display.innerText = "TOCCA PER RICOMINCIARE";
+                }, 1000);
             }
         }
+
+        // Impedisce il "rimbalzo" su iOS
+        document.addEventListener('touchmove', function(e) {
+            e.preventDefault();
+        }, { passive: false });
     </script>
 </body>
 </html>
