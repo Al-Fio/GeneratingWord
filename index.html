@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gioco Parole</title>
+    <style>
+        body { height: 100vh; margin: 0; display: flex; align-items: center; justify-content: center; font-family: sans-serif; background: #222; color: white; text-align: center; cursor: pointer; user-select: none; }
+        #word { font-size: 3rem; font-weight: bold; padding: 20px; }
+    </style>
+</head>
+<body onclick="nextWord()">
+    <div id="word">Tocca per iniziare</div>
+
+    <script>
+        const words = ["Mela", "Libro", "Sole", "Gatto", "Mare", "Luna", "Stella"];
+        let shuffled = words.sort(() => Math.random() - 0.5);
+        let index = 0;
+
+        function nextWord() {
+            if (index < shuffled.length) {
+                document.getElementById("word").innerText = shuffled[index];
+                index++;
+            } else {
+                document.getElementById("word").innerText = "Fine! (Tocca per riavviare)";
+                shuffled = words.sort(() => Math.random() - 0.5);
+                index = 0;
+            }
+        }
+    </script>
+</body>
+</html>
